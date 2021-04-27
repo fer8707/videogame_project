@@ -1,148 +1,226 @@
-const canvas =  document.getElementById("main")
+const canvas = document.getElementById("main")
 const ctx = canvas.getContext("2d")
+const backImg = new Image()
+backImg.src = "/images/calle.png"
 const hero = new Image()
-hero.src="/images/hero.png"
-const backImg = new Image();
-backImg.src = '/images/calle.png'
+hero.src = "/images/bart1.png"
 const shotImg = new Image()
 shotImg.src = "/images/shot.png"
+const homerImg = new Image()
+homerImg.src = "/images/homero1.png"
+//bacground 
 const backgroundImage = {
     backImg: backImg,
     x: 0,
     speed: -1,
-    move: function(){
+    move: function () {
         this.x += this.speed
         this.x %= canvas.width;
     },
-    draw: function(){
+    draw: function () {
         ctx.drawImage(this.backImg, this.x, 0);
         if (this.speed < 0) {
             ctx.drawImage(this.backImg, this.x + canvas.width, 0);
-          } else {
+        } else {
             ctx.drawImage(this.backImg, this.x - this.img.width, 0);
-          }
+        }
     }
-}
-const player = {
-    width: 50,
-    height: 70,
-    x: 20,
-    y: canvas.height/2,
-    speed: 10,
-    dx: 0, // DIFERENCIAL DE CAMBIO
-    dy: 0
-}
-function drawPlayer(){
-        ctx.drawImage(hero, player.x, player.y, player.width, player.height)
-}
-function newPos(){
-    player.x += player.dx
-    player.y += player.dy
 }
 
-const enemy = {
-    width: 50,
-    height: 70,
-    x: 20,
-    y: 200,
-    speed: 10,
-    dx: 0, // DIFERENCIAL DE CAMBIO
-    dy: 0
-}
-function drawPlayer(){
-        ctx.drawImage(hero, player.x, player.y, player.width, player.height)
-}
-function newPos(){
-    player.x += player.dx
-    player.y += player.dy
+function clear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function clear(){
-    ctx.clearRect(0,0,canvas.width, canvas.height)
-}
-// FUNCIONES DE VELOCIDAD
-function moveRight(){
-    player.dx = player.speed
-}
-function moveUp(){
-    player.dy = -player.speed
-}
-function moveLeft(){
-    player.dx = -player.speed
-}
-function moveDown(){
-    player.dy = player.speed
-}
-function drawShot(){
-    ctx.drawImage(shotImg, gun.x+player.width, gun.y+player.height/2)
-    gun.x += gun.dx
-gun.y += gun.dy
-gun.dx = gun.speed
-}
-function posShot(){
-
-}
-function keyDown(e){
-    console.log(e.key)
-    switch(e.key){
-        case "ArrowRight":
-            
-            moveRight()
-            break;
-        case "ArrowUp":
-            moveUp()
-            break
-        case "ArrowDown":
-            moveDown()
-            break
-        case "ArrowLeft":
-            moveLeft()
-            break
-        case "a":
-            drawShot()
-            break
-        default:
-            return
-    }
-}
-function detectWalls(){
-    if(player.x < 0){
-        player.x = 0
-    }
-    if(player.x + player.width > canvas.width){
-        player.x = canvas.width - player.width
-    }
-    if(player.y < 0){
-        player.y = 0
-    }
-    if(player.y + player.height > canvas.height){
-        player.y = canvas.height - player.height
-    }
-}
-function keyUp(){
-    player.dx = 0
-    player.dy = 0
-}
-const gun = {
-    x: player.x,
-    y: player.y,
-    speed:5,
-    dx: player.dx, // DIFERENCIAL DE CAMBIO
-    dy: player.dy
+// CANVAS AREA
+const myGameArea = {
+    frames: 0
 }
 
-function update(){ // MOTOR DE ANIMACIÓN
+// components constructor
+class Component {
+    constructor(x, y, width, height) {
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.yRandom = canvas.height / 2 - 100;
+    }
+    left() {
+        return this.x;
+    }
+    right() {
+        return this.x + this.width;
+    }
+    top() {
+        return this.y;
+    }
+    bottom() {
+        return this.y + this.height;
+    }
+    crashHomero(obstacle) {
+        return !(
+            this.bottom() - 20 < obstacle.top() ||
+            this.top() + 10 > obstacle.bottom() ||
+            this.right() - 90 < obstacle.left() ||
+            this.left() + 30 > obstacle.right());
+    }
+
+    crash(obstacle) {
+        return !(
+            this.bottom() < obstacle.top() ||
+            this.top() > obstacle.bottom() ||
+            this.right() < obstacle.left() ||
+            this.left() > obstacle.right());
+    }
+
+    updateBartP() { // hero draw
+        ctx.drawImage(hero, this.x, this.y, this.width = 50, this.height = 100)
+    }
+    updateMissile() { // missile draw
+        ctx.drawImage(shotImg, this.x, this.y)
+    }
+
+    updatehomero() { // enemy draw
+        ctx.drawImage(homerImg, this.x, this.y, this.width, this.height)
+    }
+    newPos() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+    }
+    detectBorders() { //border detector for bart
+        let borderLeft = 10
+        let borderRight = 10
+        let borderUp = 10
+        let borderDown = 10
+        if (this.x < borderLeft) {
+            this.x = borderLeft
+        }
+        if (this.x + this.width > canvas.width - borderRight) {
+            this.x = canvas.width - bart.width - borderRight
+        }
+        if (this.y < borderUp + 90) {
+            this.y = borderUp + 90
+        }
+        if (this.y + this.height > canvas.height - borderDown) {
+            this.y = canvas.height - bart.height - borderDown
+        }
+    }
+
+
+}
+/*  iniciar los estados del juego
+    - pantalla inicial
+    - juego
+    - pantalla gameover
+*/
+const bart = new Component(10, canvas.height / 2 - 100, 166, 190)
+const homers = []
+const missiles = []
+
+// homero UPDATE
+function updatehomero() {
+    for (let i = 0; i < homers.length; i++) {
+        homers[i].x -= 1
+        homers[i].updatehomero();
+    }
+    myGameArea.frames += 1
+    if (myGameArea.frames % 150 === 0) {
+        let widthhomero = 70
+        let heighthomero = 100
+        let yRandom = Math.floor(Math.random() * 510 + 50);
+        // PUSH homero
+        homers.push(new Component(1100, yRandom, widthhomero, heighthomero))
+    }
+}
+
+function shot() { //missile generator
+    let widthMissile = 20
+    let heightMissile = 20
+    missiles.push(new Component(bart.x + 50, bart.y + 30, widthMissile, heightMissile));
+}
+
+function updateMissiles() {
+    for (let i = 0; i < missiles.length; i++) {
+        missiles[i].x += 5
+        missiles[i].updateMissile()
+    }
+}
+
+//crash bart whit homer
+function checkCrashedbart() {
+    for (let i = 0; i < homers.length; i++) {
+        if (bart.crashHomero(homers[i]) === true) {
+            homers.splice(i, 1)
+            break
+        }
+    }
+}
+
+//crash missil with homer
+function checkCrashedhomero() {
+    for (let i = 0; i < homers.length; i++) {
+        for (let j = 0; j < missiles.length; j++) {
+            if (homers[i].crash(missiles[j]) === true) {
+                homers.splice(i, 1)
+                missiles.splice(j, 1)
+                break
+            }
+        }
+    }
+}
+
+// GAME OVER
+function checkGameOver(id) {
+
+}
+
+// MOTOR
+function updateGameArea() {
     clear()
-    backgroundImage.move()
     backgroundImage.draw()
-    detectWalls()
-    drawPlayer()
-    newPos()
-    posShot()
-    drawShot()
-    requestAnimationFrame(update)
+    backgroundImage.move()
+    bart.newPos()
+    bart.detectBorders()
+    bart.updateBartP()
+
+
+    updateMissiles()
+    updatehomero()
+    checkCrashedbart()
+
+    checkCrashedhomero()
+    let frameId = requestAnimationFrame(updateGameArea)
+    checkGameOver(frameId);
 }
-update()
-// EVENTOS
-document.addEventListener('keydown', keyDown)
-document.addEventListener('keyup', keyUp)
+
+//GAME'S INVOKE
+window.onload = () => {
+    updateGameArea()
+}
+
+// EVENTS
+document.addEventListener('keydown', (e) => {
+    switch (e.keyCode) {
+        case 37: // left arrow
+            bart.speedX -= 10
+            break;
+        case 39: // right arrow
+            bart.speedX += 10
+            break;
+        case 38: // up arrow
+            bart.speedY -= 10
+            break;
+        case 40: // right arrow
+            bart.speedY += 10
+            break;
+        case 32: // letter A
+            shot()
+            break;
+    }
+})
+document.addEventListener('keyup', (e) => {
+    bart.speedX = 0
+    bart.speedY = 0
+})
