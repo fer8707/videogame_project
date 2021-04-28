@@ -9,8 +9,10 @@ const shotImg = new Image()
 shotImg.src = "/images/shot.png"
 const homerImg = new Image()
 homerImg.src = "/images/homero1.png"
-const homerImg2= new Image()
-homerImg2.src = "/images/homero2.png"
+const huesosImg= new Image()
+huesosImg.src = "/images/huesos.png"
+const gameOverImg= new Image()
+gameOverImg.src = "/images/gameover.png"
 //sounds charger
 const shotSnd = new Audio()
 shotSnd.src = "/sounds/bart_shot.mp3"
@@ -25,12 +27,7 @@ const state = {
     game : 1, // ESTADO DE "JUGANDO"
     over : 2 // ESTADO DE COLISIÓN Y PÉRDIDA DEL JUEGO
 }
-const startBtn = {
-    x : 120,
-    y : 263,
-    w : 83,
-    h : 29
-}
+
 
 // CONTROL DEL JUEGO
 
@@ -62,7 +59,7 @@ function clear() {
 const myGameArea = {
     frames: 0,
     score: function () {
-        const points = Math.floor(this.frames / 5);
+        const points = Math.floor(this.frames / 150);
         ctx.font = '18px serif';
         ctx.fillStyle = 'white';
         ctx.fillText(`Score: ${points}`, 350, 50);
@@ -116,14 +113,15 @@ class Component {
     updateMissile() { // missile draw
         ctx.drawImage(shotImg, this.x, this.y)
     }
+    updateGameOverBtn(){
+        ctx.drawImage(gameOverImg, this.x, this.y, this.width, this.height)
+    }
 
     updatehomero() { // enemy draw
         ctx.drawImage(homerImg, this.x, this.y, this.width, this.height)
-        
-        /*
-        const open = ctx.drawImage(homerImg, this.x, this.y, this.width, this.height)
-        const close = ctx.drawImage(homerImg2,this.x, this.y, this.width, this.height)
-        */
+    }
+    updatehomeroR() { // enemy draw reverse
+        ctx.drawImage(huesosImg, this.x, this.y, this.width, this.height)
     }
     newPos() {
         this.x += this.speedX;
@@ -155,25 +153,41 @@ class Component {
     - juego
     - pantalla gameover
 */
-const bart = new Component(10, canvas.height / 2 - 100, 166, 190)
+const bart = new Component(100, canvas.height / 2 - 100, 166, 190)
 const homers = []
+const huesos = []
 const missiles = []
 
 // homero UPDATE
 function updatehomero() {
+
     for (let i = 0; i < homers.length; i++) {
-        homers[i].x -= 1
+        homers[i].x -= 1                          //velocidad a la izquierda
         homers[i].updatehomero();
+        
+    } 
+    for (let i = 0; i < huesos.length; i++) {
+        huesos[i].x += 1                          //velocidad a la derecha
+        huesos[i].updatehomeroR();
+        
     }
+    
+    
     myGameArea.frames += 1
-    if (myGameArea.frames % 150 === 0) {
+    
+    if (myGameArea.frames % 90 === 0) {             //velocidad de aparición
+    
         let widthhomero = 70
         let heighthomero = 100
         let yRandom = Math.floor(Math.random() * 510);
         // PUSH homero
         homers.push(new Component(800, yRandom, widthhomero, heighthomero))
+        huesos.push(new Component(0, yRandom+150, widthhomero, heighthomero))
     }
+    
 }
+// Homero REVERSA
+
 
 function shot() { //missile generator
     let widthMissile = 20
@@ -189,15 +203,34 @@ function updateMissiles() {
     }
 }
 
-//crash bart whit homer
+//crash bart with homer
 function checkCrashedbart() {
     for (let i = 0; i < homers.length; i++) {
         if (bart.crashHomero(homers[i]) === true) {
             homers.splice(i, 1)
+            updateGameOverBtn()
             checkGameOver()
+            
             break
         }
     }
+}
+//crash bart with huesos
+function checkCrashedbartR() {
+    for (let i = 0; i < huesos.length; i++) {
+        if (bart.crashHomero(huesos[i]) === true) {
+            huesos.splice(i, 1)
+            updateGameOverBtn()
+            checkGameOver()
+            
+            break
+        }
+    }
+}
+// Gameover Button 
+function updateGameOverBtn(){
+    
+    updateGameOverBtn()
 }
 
 //crash missil with homer
@@ -229,12 +262,11 @@ function updateGameArea() {
     bart.newPos()
     bart.detectBorders()
     bart.updateBartP()
-    myGameArea.score()
-
+    myGameArea.score()  
     updateMissiles()
     updatehomero()
     checkCrashedbart()
-
+    checkCrashedbartR()
     checkCrashedhomero()
     let frameId = requestAnimationFrame(updateGameArea)
     checkGameOver(frameId);
