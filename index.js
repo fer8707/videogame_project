@@ -1,6 +1,5 @@
-const canvas = document.getElementById("main")
+const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d")
-//images charger
 const backImg = new Image()
 backImg.src = "/images/calle.png"
 const hero = new Image()
@@ -9,10 +8,12 @@ const shotImg = new Image()
 shotImg.src = "/images/shot.png"
 const homerImg = new Image()
 homerImg.src = "/images/homero1.png"
-const huesosImg= new Image()
+const huesosImg = new Image()
 huesosImg.src = "/images/huesos.png"
-const gameOverImg= new Image()
+const gameOverImg = new Image()
 gameOverImg.src = "/images/gameover.png"
+const teclaImg = new Image()
+teclaImg.src = "/images/tecla.png"
 //sounds charger
 const shotSnd = new Audio()
 shotSnd.src = "/sounds/bart_shot.mp3"
@@ -21,18 +22,15 @@ dohSnd.src = "/sounds/doh_homer.wav"
 const gameoverSnd = new Audio()
 gameoverSnd.src = "/sounds/palomita.wav"
 
+// GAME STATE
 const state = {
-    current : 0, // ESTADO ACTUAL, PUEDE TENER COMO OPCIONES 0,1,2, BASADAS EN LAS SIGUIENTES PROPIEDADES
-    getReady : 0, // ESTADO DE INICIO DEL JUEGO
-    game : 1, // ESTADO DE "JUGANDO"
-    over : 2 // ESTADO DE COLISIÓN Y PÉRDIDA DEL JUEGO
+    current: 0, // CURRENT STATE
+    intro: 1, //INTRO FRAMES
+    game: 2,
+    overcrash: 3 // END OF GAME
 }
 
-
-// CONTROL DEL JUEGO
-
-
-//bacground 
+//BACKGROUND
 const backgroundImage = {
     backImg: backImg,
     x: 0,
@@ -113,7 +111,7 @@ class Component {
     updateMissile() { // missile draw
         ctx.drawImage(shotImg, this.x, this.y)
     }
-    updateGameOverBtn(){
+    updateGameOverBtn() {
         ctx.drawImage(gameOverImg, this.x, this.y, this.width, this.height)
     }
 
@@ -148,6 +146,7 @@ class Component {
 
 
 }
+
 /*  iniciar los estados del juego
     - pantalla inicial
     - juego
@@ -157,37 +156,44 @@ const bart = new Component(100, canvas.height / 2 - 100, 166, 190)
 const homers = []
 const huesos = []
 const missiles = []
+let crash = 0
+
+// RESET OBJECTS FOR NEW GAME
+function resetGame() {
+    const bart = new Component(100, canvas.height / 2 - 100, 166, 190)
+    const homers = []
+    const huesos = []
+    const missiles = []
+}
 
 // homero UPDATE
 function updatehomero() {
 
     for (let i = 0; i < homers.length; i++) {
-        homers[i].x -= 1                          //velocidad a la izquierda
+        homers[i].x -= 1 //velocidad a la izquierda
         homers[i].updatehomero();
-        
-    } 
-    for (let i = 0; i < huesos.length; i++) {
-        huesos[i].x += 1                          //velocidad a la derecha
-        huesos[i].updatehomeroR();
-        
+
     }
-    
-    
+    for (let i = 0; i < huesos.length; i++) {
+        huesos[i].x += 1 //velocidad a la derecha
+        huesos[i].updatehomeroR();
+
+    }
+
+
     myGameArea.frames += 1
-    
-    if (myGameArea.frames % 90 === 0) {             //velocidad de aparición
-    
+
+    if (myGameArea.frames % 90 === 0) { //velocidad de aparición
+
         let widthhomero = 70
         let heighthomero = 100
         let yRandom = Math.floor(Math.random() * 510);
         // PUSH homero
         homers.push(new Component(800, yRandom, widthhomero, heighthomero))
-        huesos.push(new Component(0, yRandom+150, widthhomero, heighthomero))
+        huesos.push(new Component(0, yRandom + 150, widthhomero, heighthomero))
     }
-    
-}
-// Homero REVERSA
 
+}
 
 function shot() { //missile generator
     let widthMissile = 20
@@ -202,15 +208,17 @@ function updateMissiles() {
         missiles[i].updateMissile()
     }
 }
-
 //crash bart with homer
 function checkCrashedbart() {
+
     for (let i = 0; i < homers.length; i++) {
+
         if (bart.crashHomero(homers[i]) === true) {
             homers.splice(i, 1)
-            updateGameOverBtn()
-            checkGameOver()
-            
+            crash = 1
+            //updateGameOverBtn()
+            //checkGameOver()
+
             break
         }
     }
@@ -220,19 +228,14 @@ function checkCrashedbartR() {
     for (let i = 0; i < huesos.length; i++) {
         if (bart.crashHomero(huesos[i]) === true) {
             huesos.splice(i, 1)
-            updateGameOverBtn()
-            checkGameOver()
-            
+            crash = 1
+            // updateGameOverBtn()
+            //checkGameOver()
+
             break
         }
     }
 }
-// Gameover Button 
-function updateGameOverBtn(){
-    
-    updateGameOverBtn()
-}
-
 //crash missil with homer
 function checkCrashedhomero() {
     for (let i = 0; i < homers.length; i++) {
@@ -247,11 +250,17 @@ function checkCrashedhomero() {
     }
 }
 
+
+
 // GAME OVER
 function checkGameOver(id) {
-    
-    cancelAnimationFrame()
-    
+    if (crash === 1) {
+        cancelAnimationFrame(id)
+        state.current = 3
+        gameoverSnd.play()
+        ctx.drawImage(gameOverImg, canvas.width / 2, canvas.height / 2, gameOverImg.width / 2, gameOverImg.height / 2)
+        state.current = state.overcrash
+    }
 }
 
 // MOTOR
@@ -262,7 +271,7 @@ function updateGameArea() {
     bart.newPos()
     bart.detectBorders()
     bart.updateBartP()
-    myGameArea.score()  
+    myGameArea.score()
     updateMissiles()
     updatehomero()
     checkCrashedbart()
@@ -274,7 +283,19 @@ function updateGameArea() {
 
 //GAME'S INVOKE
 window.onload = () => {
-    updateGameArea()
+    intro()
+}
+
+
+
+//INTRO GAME
+function intro() {
+    ctx.drawImage(teclaImg, 0, 0, canvas.width, canvas.height)
+    setTimeout(function () {
+        state.current = state.game
+        resetGame()
+        updateGameArea()
+    }, 3000);
 }
 
 // EVENTS
