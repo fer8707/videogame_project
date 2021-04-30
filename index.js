@@ -258,7 +258,7 @@ function checkCrashedhomero() {
         }
     }
 }
-// WIN
+/* WIN
 function checkWiner(id){
     if(myGameArea.frames===1200){
         cancelAnimationFrame(id)
@@ -268,7 +268,7 @@ function checkWiner(id){
         state.current = state.overcrash
     }
 }
-
+*/
 
 // GAME OVER
 function checkGameOver(id) {
