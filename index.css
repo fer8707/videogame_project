@@ -14,7 +14,7 @@ canvas {
 }
 .titulo{
     text-align: center;
-    text-shadow:#27dde0 0 5px;
+    text-shadow: 1px 1px 5px black, 0 0 1em #27dde0, 0 0 0.2em #27dde0;
     color: black;
     display:inline;
     position: absolute;
@@ -26,7 +26,7 @@ canvas {
 }
 .instructions{
     text-align: left;
-    text-shadow:#27dde0 0 5px;
+    text-shadow: 1px 1px 5px black, 0 0 1em #27dde0, 0 0 0.2em #27dde0;
     color: black;
     position: absolute;
     top:200px;
@@ -42,6 +42,6 @@ canvas {
     top:200px;
     bottom: 0;
     left: 0;
-    right: 0;
+    right: 20;
     margin:auto;
 }

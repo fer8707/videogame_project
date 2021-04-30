@@ -23,13 +23,18 @@ const dohSnd = new Audio()
 dohSnd.src = "/sounds/doh_homer.wav"
 const gameoverSnd = new Audio()
 gameoverSnd.src = "/sounds/palomita.wav"
+const winSnd = new Audio()
+winSnd.src = "/sounds/win.ogg"
+const backMusic = new Audio()
+backMusic.src = "/sounds/backmusic.mp3"
 
 // GAME STATE
 const state = {
     current: 0, // CURRENT STATE
     intro: 1, //INTRO FRAMES
     game: 2,
-    overcrash: 3 // END OF GAME
+    overcrash: 3, // END OF GAME
+    win: 4          //WIN BY SCORE
 }
 
 //BACKGROUND
@@ -53,6 +58,7 @@ const backgroundImage = {
 
 function clear() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    backMusic.play()
 }
 
 // CANVAS AREA
@@ -160,6 +166,7 @@ const huesos = []
 const missiles = []
 let crash = 0
 
+
 // RESET OBJECTS FOR NEW GAME
 function resetGame() {
     const bart = new Component(100, canvas.height / 2 - 100, 166, 190)
@@ -253,7 +260,13 @@ function checkCrashedhomero() {
 }
 // WIN
 function checkWiner(id){
-    
+    if(myGameArea.frames===1200){
+        cancelAnimationFrame(id)
+        state.current = 3
+        winSnd.play()
+        ctx.drawImage(winImg, canvas.width / 2, canvas.height / 3, winImg.width, winImg.height)
+        state.current = state.overcrash
+    }
 }
 
 
@@ -285,6 +298,7 @@ function updateGameArea() {
     let frameId = requestAnimationFrame(updateGameArea)
     checkGameOver(frameId)
     checkWiner(frameId)
+    console.log(myGameArea.frames)
 }
 
 //GAME'S INVOKE
@@ -301,6 +315,7 @@ function intro() {
         state.current = state.game
         resetGame()
         updateGameArea()
+        
     }, 3000);
 }
 
@@ -327,4 +342,8 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     bart.speedX = 0
     bart.speedY = 0
+})
+
+document.addEventListener("click", function(event){ // CLICK EVENT BY STATE
+    window.location.reload("Refresh")
 })
