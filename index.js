@@ -14,6 +14,8 @@ const gameOverImg = new Image()
 gameOverImg.src = "/images/gameover.png"
 const teclaImg = new Image()
 teclaImg.src = "/images/tecla.png"
+const winImg = new Image()
+winImg.src = "/images/win.png"
 //sounds charger
 const shotSnd = new Audio()
 shotSnd.src = "/sounds/bart_shot.mp3"
@@ -58,8 +60,8 @@ const myGameArea = {
     frames: 0,
     score: function () {
         const points = Math.floor(this.frames / 150);
-        ctx.font = '18px serif';
-        ctx.fillStyle = 'white';
+        ctx.font = '30px serif';
+        ctx.fillStyle = 'red';
         ctx.fillText(`Score: ${points}`, 350, 50);
         return points
     },
@@ -249,7 +251,10 @@ function checkCrashedhomero() {
         }
     }
 }
-
+// WIN
+function checkWiner(id){
+    
+}
 
 
 // GAME OVER
@@ -278,7 +283,8 @@ function updateGameArea() {
     checkCrashedbartR()
     checkCrashedhomero()
     let frameId = requestAnimationFrame(updateGameArea)
-    checkGameOver(frameId);
+    checkGameOver(frameId)
+    checkWiner(frameId)
 }
 
 //GAME'S INVOKE

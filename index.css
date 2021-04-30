@@ -3,7 +3,19 @@ body{
     background-image: url("https://cdn.pixabay.com/photo/2012/02/22/09/12/background-15226_960_720.jpg");
  }
 canvas {
-    border: 1px solid red;
+    border: 1px solid black;
+    display:inline;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin:auto;
+}
+.titulo{
+    text-align: center;
+    text-shadow:#27dde0 0 5px;
+    color: black;
     display:inline;
     position: absolute;
     top:0;
@@ -13,10 +25,23 @@ canvas {
     margin:auto;
 }
 .instructions{
-    text-align: center;
-    color: #5290ff;
+    text-align: left;
+    text-shadow:#27dde0 0 5px;
+    color: black;
+    position: absolute;
+    top:200px;
+    bottom: 0;
+    left: 20;
+    right: 1100px;
+    margin:auto;
 }
 .controls{
-    text-align: left;
+    text-align: right;
     display: inline;
+    position: absolute;
+    top:200px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin:auto;
 }
